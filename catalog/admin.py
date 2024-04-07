@@ -4,7 +4,7 @@ from .models import Product, Category
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ('name', 'category', 'price', 'created_at')
+    list_display = ('name', 'category', 'price', 'image_tag', 'created_at')
     list_filter = ('category', 'created_at')
     search_fields = ('name', 'description')
 
