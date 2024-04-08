@@ -1,6 +1,7 @@
 from django.db import models
 from django.utils.html import mark_safe
 
+
 class Product(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
@@ -16,6 +17,7 @@ class Product(models.Model):
 
     def image_tag(self):
         return mark_safe('<img src="%s" width="150" height="150" />' % self.image.url)
+
     image_tag.short_description = 'Image'
 
     class Meta:
