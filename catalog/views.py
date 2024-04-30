@@ -1,8 +1,9 @@
 from catalog.models import Product, Version
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView, View
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from catalog.forms import ProductForm, VersionForm
+from django.forms import inlineformset_factory
 
 
 class IndexListView(ListView):
@@ -20,10 +21,12 @@ class ContactsView(TemplateView):
 
 class ProductListView(ListView):
     model = Product
+    template_name = 'main/product_list.html'
 
 
 class ProductDetailView(DetailView):
     model = Product
+    template_name = 'main/product_detail.html'
     context_object_name = 'product'
 
 
@@ -43,7 +46,7 @@ class ProductUpdateView(UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         active_version = Version.objects.filter(product=self.object, is_current_version=True).first()
-        initial_data = {}  # Add any initial data you want to prepopulate in the VersionForm
+        initial_data = {}
         version_form = VersionForm(instance=active_version, initial=initial_data)
         context['version_form'] = version_form
         return context
@@ -97,18 +100,30 @@ class DeleteVersionView(View):
 
 
 class UpdateVersionView(View):
-    def post(self, request, *args, **kwargs):
-        if 'delete_version' in request.POST:
-            # Логика удаления выбранной версии
-            version_id = request.POST['version_id']
-            Version.objects.get(id=version_id).delete()
+    model = Version
+    form_class = VersionForm
+    success_url = reverse_lazy('catalog:index')
+
+    def get_success_url(self):
+        return reverse('catalog:index', args=[self.kwargs.get('pk')])
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        VersionFormset = inlineformset_factory(Product, Version, VersionForm, extra=1, can_delete=False)
+        if self.request.method == "POST":
+            context_data["formset"] = VersionFormset(self.request.POST, instance=self.object)
         else:
-            form = VersionForm(request.POST)
-            if form.is_valid():
-                if form.cleaned_data['is_current_version']:
-                    existing_current_version = Version.objects.filter(is_current_version=True).first()
-                    if existing_current_version:
-                        existing_current_version.is_current_version = False
-                        existing_current_version.save()
-                new_version = form.save()
-        return redirect('home')  # Перенаправляем на главную страницу после обработки запроса
+            context_data["formset"] = VersionFormset(instance=self.object)
+        return context_data
+
+    def form_valid(self, form):
+        context_data = self.get_context_data()
+        formset = context_data["formset"]
+        if form.is_valid() and formset.is_valid():
+            self.object = form.save()
+            formset.instance = self.object
+            formset.save()
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form, formset=formset))
+

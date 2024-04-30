@@ -12,12 +12,20 @@
                 <ul>
                     {% for product in object_list %}
                         <li>
-                            <strong>{{ product.name }}</strong>
-                            {% if product.active_version %}
-                                <p>Активная версия: {{ product.active_version.version_number }} - {{ product.active_version.version_name }}</p>
-                            {% else %}
-                                <p>Активная версия не найдена</p>
-                            {% endif %}
+                            <a href="{% url 'product_detail' pk=product.pk %}">
+                                <h2>{{ product.name }}</h2>
+                                <img src="{{ product.image.url }}" width="150" height="150">
+                                <p>Описание: {{ product.description }}</p>
+                                <p>Категория: {{ product.category.name }}</p>
+                                <p>Цена: {{ product.price }}</p>
+                                <p>Дата создания: {{ product.created_at }}</p>
+                                <p>Дата обновления: {{ product.updated_at }}</p>
+
+                                <h3>Версии продукта:</h3>
+                                {% for version in product.versions.all %}
+                                    <p>Версия №{{ version.version_number }}: {{ version.version_name }}</p>
+                                {% endfor %}
+                            </a>
                         </li>
                     {% endfor %}
                 </ul>

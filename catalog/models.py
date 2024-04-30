@@ -38,10 +38,16 @@ class Category(models.Model):
 
 
 class Version(models.Model):
-    product = models.ForeignKey(Product, related_name='versions', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='versions', on_delete=models.SET_NULL, null=True, blank=True,
+                                verbose_name="продукт")
     version_number = models.CharField(max_length=50)
     version_name = models.CharField(max_length=100)
     is_current_version = models.BooleanField(default=False)
+
+    class Meta:
+        verbose_name = "Версия продукта"
+        verbose_name_plural = "Версия продуктов"
+        ordering = ["product", "version_name"]
 
     def __str__(self):
         return f"{self.product} - Version {self.version_number}: {self.version_name}"

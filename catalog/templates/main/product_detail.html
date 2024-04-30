@@ -1,0 +1,14 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+  <h2>{{ product.name }}</h2>
+  <img src="{{ product.image.url }}" width="300" height="300">
+  <p>Описание: {{ product.description }}</p>
+  <p>Категория: {{ product.category.name }}</p>
+  <p>Цена: {{ product.price }}$</p>
+  <h3>Версии продукта:</h3>
+  {% for version in product.versions.all %}
+  <p>Версия №{{ version.version_number }}: {{ version.version_name }}</p>
+
+  {% endfor %}
+{% endblock %}
