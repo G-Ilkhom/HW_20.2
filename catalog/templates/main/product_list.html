@@ -1,0 +1,28 @@
+{% extends 'main/base.html' %}
+
+{% block content %}
+    <div class="col-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">
+                    Список продуктов
+                </h3>
+            </div>
+            <div class="card-body">
+                <ul>
+                    {% for product in object_list %}
+                        <li>
+                            <strong>{{ product.name }}</strong>
+                            {% if product.active_version %}
+                                <p>Активная версия: {{ product.active_version.version_number }} - {{ product.active_version.version_name }}</p>
+                            {% else %}
+                                <p>Активная версия не найдена</p>
+                            {% endif %}
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="card-footer"></div>
+        </div>
+    </div>
+{% endblock %}

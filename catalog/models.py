@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils.html import mark_safe
+from django.core.exceptions import ValidationError
 
 
 class Product(models.Model):
@@ -10,7 +11,6 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    manufactured_at = models.DateField()
 
     def __str__(self):
         return self.name
@@ -35,3 +35,13 @@ class Category(models.Model):
     class Meta:
         verbose_name = 'Category'
         verbose_name_plural = 'Categories'
+
+
+class Version(models.Model):
+    product = models.ForeignKey(Product, related_name='versions', on_delete=models.CASCADE)
+    version_number = models.CharField(max_length=50)
+    version_name = models.CharField(max_length=100)
+    is_current_version = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.product} - Version {self.version_number}: {self.version_name}"
