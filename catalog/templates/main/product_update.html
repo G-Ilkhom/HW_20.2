@@ -21,24 +21,10 @@
         <div class="col-6">
             <div class="card">
                 <div class="card-body">
-                    {{ version_form.as_p }}
-                    <p>Versions:</p>
-                    <ul>
-                        {% for version in product.versions.all %}
-                            {% if version.is_current_version %}
-                                <li>
-                                    Актуальная версия {{ version.version_number }} - {{ version.version_name }}
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                        {% for version in product.versions.all %}
-                            {% if not version.is_current_version %}
-                                <li>
-                                    {{ version.version_number }} - {{ version.version_name }}
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                    </ul>
+                    {{ formset.management_form}}
+                    {% for form in formset.forms %}
+                    {{ form.as_p }}
+                    {% endfor %}
                 </div>
             </div>
         </div>
