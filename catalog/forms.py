@@ -1,11 +1,13 @@
 from django import forms
+from django.forms import ModelForm
+
 from catalog.models import Product, Version
 
 forbidden_words = ["казино", "криптовалюта", "крипта", "биржа", "дешево", "бесплатно", "обман", "полиция",
                    "радар"]
 
 
-class ProductForm(forms.ModelForm):
+class ProductForm(ModelForm):
     class Meta:
         model = Product
         fields = ['name', 'description', 'image', 'price', 'category']
@@ -29,6 +31,12 @@ class ProductForm(forms.ModelForm):
             if word in data.lower():
                 raise forms.ValidationError(f'Использование слова "{word}" в названии продукта недопустимо.')
         return data
+
+
+class ProductModeratorForm(ModelForm):
+    class Meta:
+        model = Product
+        fields = ['published', 'description', 'category']
 
 
 class VersionForm(forms.ModelForm):

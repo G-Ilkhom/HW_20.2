@@ -1,10 +1,11 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 
 from catalog.models import Product, Version
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.urls import reverse_lazy, reverse
-from catalog.forms import ProductForm, VersionForm
+from catalog.forms import ProductForm, VersionForm, ProductModeratorForm
 from django.forms import inlineformset_factory
 
 
@@ -26,10 +27,17 @@ class ProductListView(ListView):
     template_name = 'main/product_list.html'
 
 
-class ProductDetailView(DetailView):
+class ProductDetailView(DetailView, LoginRequiredMixin):
     model = Product
     template_name = 'main/product_detail.html'
     context_object_name = 'product'
+
+    def get_object(self, queryset=None):
+        self.object = super().get_object(queryset)
+        if self.request.user == self.object.owner:
+            self.object.save()
+            return self.object
+        return PermissionDenied
 
 
 class ProductCreateView(LoginRequiredMixin, CreateView):
@@ -46,7 +54,7 @@ class ProductCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
 
-class ProductUpdateView(UpdateView):
+class ProductUpdateView(LoginRequiredMixin, UpdateView):
     model = Product
     form_class = ProductForm
     template_name = 'main/product_update.html'
@@ -104,6 +112,15 @@ class ProductUpdateView(UpdateView):
         return render(request, 'main/product_update.html',
                       {'product': product, 'product_form': product_form, 'version_form': version_form})
 
+    def get_form_class(self):
+        user = self.request.user
+        if user == self.object.owner:
+            return ProductForm
+        if user.has_perm("product.can_cancel_published") and user.has_perm(
+                "product.can_edit_description") and user.has_perm("product.can_edit_category"):
+            return ProductModeratorForm
+        raise PermissionDenied
+
 
 class ProductDeleteView(DeleteView):
     model = Product
@@ -147,4 +164,3 @@ class UpdateVersionView(View):
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form, formset=formset))
-
