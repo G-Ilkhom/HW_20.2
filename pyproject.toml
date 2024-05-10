@@ -8,9 +8,10 @@ packages = [{include = "hw_19"}]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-django = "^5.0.4"
 psycopg2-binary = "^2.9.9"
 ipython = "^8.23.0"
+django = "4.2"
+traitlets = "^5.14.3"
 
 
 [build-system]
