@@ -13,6 +13,11 @@ class IndexListView(ListView):
     model = Product
     template_name = 'main/home.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['has_perms'] = self.request.user.groups.filter(name='moderator').exists()
+        return context
+
 
 class ContactsView(TemplateView):
     template_name = 'main/contacts.html'
@@ -116,8 +121,8 @@ class ProductUpdateView(LoginRequiredMixin, UpdateView):
         user = self.request.user
         if user == self.object.owner:
             return ProductForm
-        if user.has_perm("product.can_cancel_published") and user.has_perm(
-                "product.can_edit_description") and user.has_perm("product.can_edit_category"):
+        if user.has_perm("catalog.can_cancel_published") and user.has_perm(
+                "catalog.can_edit_description") and user.has_perm("catalog.can_edit_category"):
             return ProductModeratorForm
         raise PermissionDenied
 

@@ -29,7 +29,7 @@ class ProductForm(ModelForm):
         data = self.cleaned_data['description']
         for word in forbidden_words:
             if word in data.lower():
-                raise forms.ValidationError(f'Использование слова "{word}" в названии продукта недопустимо.')
+                raise forms.ValidationError(f'Использование слова "{word}" в описании продукта недопустимо.')
         return data
 
 
