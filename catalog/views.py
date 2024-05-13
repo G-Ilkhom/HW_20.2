@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied
+from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 
 from catalog.models import Product, Version
 from django.shortcuts import render, redirect, get_object_or_404
@@ -39,7 +39,7 @@ class ProductDetailView(DetailView, LoginRequiredMixin):
 
     def get_object(self, queryset=None):
         self.object = super().get_object(queryset)
-        if self.request.user == self.object.owner:
+        if self.request.user == self.object.owner or self.request.user.groups.filter(name='moderator').exists():
             self.object.save()
             return self.object
         return PermissionDenied
