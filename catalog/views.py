@@ -1,12 +1,14 @@
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 
-from catalog.models import Product, Version
+from catalog.models import Product, Version, Category
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView, TemplateView, DetailView, CreateView, UpdateView, DeleteView, View
 from django.urls import reverse_lazy, reverse
 from catalog.forms import ProductForm, VersionForm, ProductModeratorForm
 from django.forms import inlineformset_factory
+
+from catalog.services import get_category_from_cache, get_products_from_cache
 
 
 class IndexListView(ListView):
@@ -17,6 +19,17 @@ class IndexListView(ListView):
         context = super().get_context_data(**kwargs)
         context['has_perms'] = self.request.user.groups.filter(name='moderator').exists()
         return context
+
+    def get_queryset(self):
+        return get_products_from_cache()
+
+
+class CategoryListView(ListView):
+    model = Category
+    template_name = 'main/category_list.html'
+
+    def get_queryset(self):
+        return get_category_from_cache()
 
 
 class ContactsView(TemplateView):

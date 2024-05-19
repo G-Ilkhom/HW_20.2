@@ -12,6 +12,8 @@ psycopg2-binary = "^2.9.9"
 ipython = "^8.23.0"
 django = "4.2"
 traitlets = "^5.14.3"
+redis = "^5.0.4"
+python-dotenv = "^1.0.1"
 
 
 [build-system]
